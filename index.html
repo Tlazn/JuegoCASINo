@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juegos de Casino</title>
+    <style>
+        /* Estilo base */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #2b2d3e, #5c5f7a);
+            color: #fff;
+            margin: 0;
+            height: 100%; /* Ajustar la altura del body para permitir desplazamiento */
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; /* Permitir desplazamiento vertical */
+        }
+
+        .header-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            border-radius: 0 0 20px 20px; /* Esquinas redondeadas inferiores */
+            z-index: 1000;
+            box-sizing: border-box;
+        }
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .icon:hover {
+            background-color: #666;
+        }
+
+        .icon.wallet::before {
+            content: "💼"; /* Emoji de cartera */
+        }
+
+        .icon.settings::before {
+            content: "⚙️"; /* Emoji de engranaje */
+        }
+
+        .icon.services::before {
+            content: "📈"; /* Emoji de gráfico de barras */
+        }
+
+        .login-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            background-color: #4caf50;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Espacio entre emoticono y texto */
+        }
+
+        .login-button:hover {
+            background-color: #388e3c;
+        }
+
+        .login-button::before {
+            content: "🔓"; /* Emoji de candado abierto */
+            font-size: 22px;
+        }
+
+        .container {
+            text-align: center;
+            width: 90%;
+            max-width: 800px;
+            margin: 80px auto 0 auto; /* Ajustar para evitar superposición con el botón de inicio de sesión */
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .game {
+            position: relative;
+            padding: 20px;
+            margin-bottom: 40px;
+            border-radius: 20px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+            background: rgba(255, 255, 255, 0.3); /* Fondo blanco con 30% opacidad */
+            backdrop-filter: blur(10px); /* Fondo difuminado detrás */
+            color: #fff;
+        }
+
+        .game:nth-of-type(2) {
+            background: rgba(244, 67, 54, 0.3); /* Rojo con 30% opacidad */
+        }
+
+        .game:nth-of-type(3) {
+            background: rgba(33, 150, 243, 0.3); /* Azul con 30% opacidad */
+        }
+
+        .game:nth-of-type(4) {
+            background: rgba(156, 39, 176, 0.3); /* Púrpura con 30% opacidad */
+        }
+
+        .game:nth-of-type(5) {
+            background: rgba(255, 152, 0, 0.3); /* Naranja con 30% opacidad */
+        }
+
+        .game:nth-of-type(6) {
+            background: rgba(63, 81, 181, 0.3); /* Azul oscuro con 30% opacidad */
+        }
+
+        .game:nth-of-type(7) {
+            background: rgba(139, 195, 74, 0.3); /* Verde claro con 30% opacidad */
+        }
+
+        .game:nth-of-type(8) {
+            background: rgba(255, 87, 34, 0.3); /* Naranja oscuro con 30% opacidad */
+        }
+
+        .game:nth-of-type(9) {
+            background: rgba(0, 188, 212, 0.3); /* Azul celeste con 30% opacidad */
+        }
+
+        .game:nth-of-type(10) {
+            background: rgba(103, 58, 183, 0.3); /* Púrpura oscuro con 30% opacidad */
+        }
+
+        .game:nth-of-type(11) {
+            background: rgba(76, 175, 80, 0.3); /* Verde pasto con 30% opacidad */
+        }
+
+        .buttons {
+            margin: 20px 0;
+        }
+
+        .bet-button, .action-button {
+            margin: 10px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .bet-button {
+            background-color: #4caf50;
+        }
+
+        .bet-button[aria-pressed="true"] {
+            background-color: #388e3c;
+        }
+
+        #betTails {
+            background-color: #f44336;
+        }
+
+        #betTails[aria-pressed="true"] {
+            background-color: #d32f2f;
+        }
+
+        .action-button {
+            background-color: #2196f3;
+        }
+
+        .action-button:hover {
+            background-color: #1e88e5;
+        }
+
+        .coin-container {
+            margin: 20px auto;
+            width: 120px;
+            height: 120px;
+            perspective: 1000px;
+        }
+
+        .coin {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #f0f0f0 50%, #d0d0d0 70%);
+            box-shadow: inset -8px -8px 16px rgba(255, 255, 255, 0.8), inset 8px 8px 16px rgba(0, 0, 0, 0.2);
+            position: relative;
+            transition: transform 1s cubic-bezier(0.53, 0.13, 0.38, 0.91);
+            transform-style: preserve-3d;
+        }
+
+        .coin:before, .coin:after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #e0e0e0;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            text-transform: uppercase;
+        }
+
+        .coin:before {
+            content: "Cara";
+            transform: rotateX(0deg);
+        }
+
+        .coin:after {
+            content: "Cruz";
+            transform: rotateX(180deg);
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #f1c40f;
+        }
+
+        @keyframes flip {
+            from {
+                transform: rotateX(0);
+            }
+            to {
+                transform: rotateX(360deg);
+            }
+        }
+
+        .coin.flipping {
+            animation: flip 1s forwards;
+        }
+
+        /* Modal de inicio de sesión */
+        #registerModal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5); /* Fondo oscuro con opacidad */
+            padding-top: 60px;
+        }
+
+        #registerModalContent {
+            background-color: #333;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 300px;
+            color: #fff;
+            text-align: center;
+        }
+
+        .close {
+            color: #fff;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #f1c40f;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-bar">
+        <div class="login-button" onclick="showLoginForm()">Iniciar Sesión</div>
+        <div class="header-icons">
+            <div class="icon wallet"></div>
+            <div class="icon settings"></div>
+            <div class="icon services"></div>
+        </div>
+    </div>
+
+    <main class="container">
+        <h1>Juego de Lanzar la Moneda</h1>
+        <section class="game">
+            <p>Elige cara o cruz:</p>
+            <div class="buttons">
+                <button id="betHeads" class="bet-button" aria-pressed="false">Cara</button>
+                <button id="betTails" class="bet-button" aria-pressed="false">Cruz</button>
+            </div>
+            <div class="coin-container">
+                <div id="coin" class="coin"></div>
+            </div>
+            <div id="result" class="result"></div>
+            <button id="flipCoin" class="action-button">Lanzar la Moneda</button>
+        </section>
+
+        <!-- Juegos adicionales -->
+        <section class="game">
+            <h2>Máquina Tragaperras</h2>
+            <!-- Aquí puedes agregar el HTML necesario para la máquina tragaperras -->
+        </section>
+
+        <section class="game">
+            <h2>Ruleta</h2>
+            <!-- Aquí puedes agregar el HTML necesario para la ruleta -->
+        </section>
+
+        <section class="game">
+            <h2>Blackjack (21)</h2>
+            <!-- Aquí puedes agregar el HTML necesario para el blackjack -->
+        </section>
+
+        <section class="game">
+            <h2>Póker</h2>
+            <!-- Aquí puedes agregar el HTML necesario para el póker -->
+        </section>
+
+        <section class="game">
+            <h2>Dados (Craps)</h2>
+            <!-- Aquí puedes agregar el HTML necesario para los dados -->
+        </section>
+
+        <section class="game">
+            <h2>Bingo</h2>
+            <!-- Aquí puedes agregar el HTML necesario para el bingo -->
+        </section>
+
+        <section class="game">
+            <h2>Keno</h2>
+            <!-- Aquí puedes agregar el HTML necesario para el keno -->
+        </section>
+
+        <section class="game">
+            <h2>Pachinko</h2>
+            <!-- Aquí puedes agregar el HTML necesario para el pachinko -->
+        </section>
+
+        <section class="game">
+            <h2>Video Poker</h2>
+            <!-- Aquí puedes agregar el HTML necesario para el video póker -->
+        </section>
+
+        <section class="game">
+            <h2>Raspadito Virtual</h2>
+            <!-- Aquí puedes agregar el HTML necesario para el raspadito virtual -->
+        </section>
+    </main>
+
+    <div id="registerModal">
+        <div id="registerModalContent">
+            <span class="close" onclick="closeLoginForm()">×</span>
+            <h2>Iniciar Sesión</h2>
+            <form id="loginForm">
+                <input type="text" id="username" placeholder="Nombre de usuario" required>
+                <input type="password" id="password" placeholder="Contraseña" required>
+                <button type="button" id="loginButton">🔓</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Lista de usuarios de prueba
+        const users = [
+            { username: '1', password: '1' },
+            { username: 'usuario2', password: 'contraseña2' },
+            { username: 'usuario3', password: 'contraseña3' },
+            { username: 'usuario4', password: 'contraseña4' },
+            { username: 'usuario5', password: 'contraseña5' },
+            { username: 'usuario6', password: 'contraseña6' },
+            { username: 'usuario7', password: 'contraseña7' },
+            { username: 'usuario8', password: 'contraseña8' },
+            { username: 'usuario9', password: 'contraseña9' },
+            { username: 'usuario10', password: 'contraseña10' }
+        ];
+
+        // Verificar si el usuario está autenticado al cargar la página
+        function checkLoginStatus() {
+            const loggedIn = localStorage.getItem('loggedIn');
+            if (loggedIn === 'true') {
+                const loginButton = document.querySelector('.login-button');
+                
+                // Obtener el color de fondo del primer botón a la derecha del botón de inicio de sesión
+                const rightButton = document.querySelector('.header-icons .icon');
+                const backgroundColor = getComputedStyle(rightButton).backgroundColor;
+
+                // Cambiar el color de fondo del botón de inicio de sesión
+                loginButton.style.backgroundColor = backgroundColor;
+                loginButton.style.color = '#fff'; // Asegurar que el texto sea blanco
+
+                // Cambiar el contenido del botón a un emoji de verificación
+                loginButton.innerHTML = '✔️'; // Emoji de verificación
+
+                // Desactivar el botón de inicio de sesión
+                loginButton.onclick = null;
+            }
+        }
+
+        function showLoginForm() {
+            document.getElementById('registerModal').style.display = 'block';
+        }
+
+        function closeLoginForm() {
+            document.getElementById('registerModal').style.display = 'none';
+        }
+
+        document.getElementById('loginButton').onclick = function() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const user = users.find(user => user.username === username && user.password === password);
+
+            if (user) {
+                alert('Inicio de sesión exitoso');
+
+                // Guardar el estado de inicio de sesión en localStorage
+                localStorage.setItem('loggedIn', 'true');
+
+                // Obtener el color de fondo del primer botón a la derecha del botón de inicio de sesión
+                const rightButton = document.querySelector('.header-icons .icon');
+                const backgroundColor = getComputedStyle(rightButton).backgroundColor;
+
+                // Cambiar el color de fondo del botón de inicio de sesión
+                const loginButton = document.querySelector('.login-button');
+                loginButton.style.backgroundColor = backgroundColor;
+                loginButton.style.color = '#fff'; // Asegurar que el texto sea blanco
+
+                // Cambiar el contenido del botón a un emoji de verificación
+                loginButton.innerHTML = '✔️'; // Emoji de verificación
+
+                closeLoginForm(); // Cierra el modal al iniciar sesión
+            } else {
+                alert('Nombre de usuario o contraseña incorrectos');
+            }
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('registerModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Verificar el estado de inicio de sesión al cargar la página
+        window.onload = checkLoginStatus;
+    </script>
+</body>
+</html>
